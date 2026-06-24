@@ -474,8 +474,18 @@ function shareUrl(){
   const base = SHARE_BASE || (location.origin + location.pathname);
   return base + '#d=' + enc(toShare(state));
 }
+function hasAmounts(st){
+  if (!st) return false;
+  const any = (arr, f) => (arr || []).some(x => num(x[f]) > 0);
+  return any(st.inntekter,'belop') || any(st.egneA,'belop') || any(st.egneB,'belop')
+      || any(st.felles,'naa') || any(st.felles,'ny');
+}
 
 $('share').addEventListener('click', async () => {
+  if (!hasAmounts(state)){
+    alert('Dette budsjettet er tomt, så lenken ville ikke hatt noen tall.\n\nÅpne fila eller siden der du faktisk har lagt inn tallene dine, og trykk «Del budsjett» der.');
+    return;
+  }
   const url = shareUrl();
   if (url.indexOf('file:') === 0){
     window.prompt('Siden er ikke publisert ennå, så denne lenken virker bare på din maskin:', url);
@@ -503,9 +513,10 @@ function loadFromHash(){
   if (!m) return;
   try {
     const incoming = fromShare(dec(m[1]));
-    const hasLocal = !!localStorage.getItem(LS_KEY);
-    if (!hasLocal || confirm('Åpne det delte budsjettet fra lenken? Det erstatter tallene som ligger i denne nettleseren.')){
-      state = incoming; save();
+    if (hasAmounts(incoming)){
+      if (!hasAmounts(state) || confirm('Åpne det delte budsjettet fra lenken? Det erstatter tallene du har lagt inn her.')){
+        state = incoming; save();
+      }
     }
   } catch(e){}
   try { history.replaceState(null, '', location.pathname + location.search); } catch(e){}
