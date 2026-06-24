@@ -1,0 +1,518 @@
+<!doctype html>
+<html lang="nb">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Boligbudsjett — sammenligning</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;450;500;600&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+:root{
+  --bg:#F4F3EE; --card:#FFFFFF; --ink:#16201B; --muted:#737B74;
+  --line:#E7E4DC; --accent:#1E5E4E; --soft:#EBF1ED;
+  --pos:#1E6B53; --neg:#B23A3A; --gold:#A9803F;
+  --r:18px; --r-sm:12px;
+  --sh-sm:0 1px 2px rgba(20,30,25,.05);
+  --sh:0 26px 54px -32px rgba(15,40,30,.40);
+}
+html,body{margin:0}
+body{
+  font-family:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  color:var(--ink); background:var(--bg);
+  background-image:radial-gradient(1200px 520px at 82% -12%, #E6EFE9 0%, rgba(230,239,233,0) 62%);
+  line-height:1.5; -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+}
+.wrap{max-width:1060px;margin:0 auto;padding:46px 24px 90px}
+
+/* Header */
+.head{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;margin-bottom:30px;flex-wrap:wrap}
+.eyebrow{font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--accent);font-weight:600;margin:0 0 8px}
+h1{font-family:'Fraunces',Georgia,serif;font-weight:600;font-size:40px;line-height:1.05;margin:0;letter-spacing:-.01em}
+.sub{color:var(--muted);margin:10px 0 0;font-size:15px;max-width:46ch}
+.head-actions{display:flex;gap:10px}
+.btn{border:1px solid var(--line);background:var(--card);color:var(--ink);border-radius:999px;
+  padding:9px 16px;font:inherit;font-size:13.5px;font-weight:500;cursor:pointer;box-shadow:var(--sh-sm);
+  transition:transform .12s ease,box-shadow .12s ease,border-color .12s ease}
+.btn:hover{transform:translateY(-1px);box-shadow:0 8px 18px -10px rgba(20,40,30,.4);border-color:#d9d6cd}
+.btn:active{transform:translateY(0)}
+.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn.primary:hover{background:#184f41;border-color:#184f41}
+
+/* Summary */
+.summary{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--sh);
+  padding:26px;margin-bottom:34px;display:grid;grid-template-columns:1fr 1fr 1.15fr;gap:8px;overflow:hidden;position:relative}
+.summary::before{content:"";position:absolute;inset:0 auto 0 0;width:4px;background:linear-gradient(var(--accent),#2f8a6f)}
+.sb{padding:6px 22px;border-right:1px solid var(--line)}
+.sb:last-child{border-right:0}
+.sb .lab{font-size:12.5px;color:var(--muted);font-weight:500;margin:0 0 6px;letter-spacing:.01em}
+.sb .num{font-family:'Fraunces',Georgia,serif;font-size:33px;font-weight:600;letter-spacing:-.01em;line-height:1}
+.sb .meta{font-size:12.5px;color:var(--muted);margin-top:7px}
+.num.pos{color:var(--pos)} .num.neg{color:var(--neg)}
+.verdict{font-size:13.5px;color:var(--ink);margin-top:9px;line-height:1.45}
+.verdict b{font-weight:600}
+.chip{display:inline-block;font-size:12px;font-weight:600;padding:3px 9px;border-radius:999px;background:var(--soft);color:var(--accent);margin-bottom:7px}
+.chip.bad{background:#F7E9E7;color:var(--neg)}
+
+/* Cards */
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--sh-sm);padding:22px 22px 18px;margin-bottom:22px}
+.card h2{font-family:'Fraunces',Georgia,serif;font-weight:600;font-size:21px;margin:0;letter-spacing:-.01em;display:flex;align-items:center;gap:10px}
+.card .desc{color:var(--muted);font-size:13px;margin:5px 0 16px}
+.titleinput{font-family:'Fraunces',Georgia,serif;font-weight:600;font-size:21px;color:var(--ink);
+  border:0;border-bottom:1.5px dashed transparent;background:transparent;padding:0 2px 1px;width:auto;min-width:60px}
+.titleinput:hover{border-bottom-color:#cfd6d0}
+.titleinput:focus{outline:0;border-bottom-color:var(--accent)}
+
+/* Rows */
+.rows{display:flex;flex-direction:column;gap:2px}
+.row{display:grid;align-items:center;gap:10px;padding:5px 0;border-bottom:1px solid #F0EEE7}
+.row.inc{grid-template-columns:1fr 132px 30px}
+.row.fel{grid-template-columns:1fr 124px 124px 30px}
+.row:last-of-type{border-bottom:0}
+.navn{border:0;background:transparent;font:inherit;font-size:14.5px;color:var(--ink);padding:8px 4px;border-radius:8px}
+.navn::placeholder{color:#aeb4ad}
+.navn:hover{background:#FAFAF7}
+.navn:focus{outline:0;background:var(--soft)}
+.amt{position:relative;display:flex;align-items:center}
+.belop{width:100%;border:1px solid var(--line);background:#FCFCFA;border-radius:10px;font:inherit;font-size:14.5px;
+  text-align:right;padding:8px 30px 8px 10px;color:var(--ink);font-variant-numeric:tabular-nums;
+  -moz-appearance:textfield;transition:border-color .12s,background .12s}
+.belop::-webkit-outer-spin-button,.belop::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.belop:focus{outline:0;border-color:var(--accent);background:#fff}
+.row.fel .belop.more{background:#FBECE9;border-color:#E3BAB1;color:#9C3A2C}
+.row.fel .belop.less{background:#EBF3EE;border-color:#BAD6C6;color:#1E6B53}
+.amt .kr{position:absolute;right:10px;font-size:12px;color:var(--muted);pointer-events:none}
+.del{border:0;background:transparent;color:#c2bdb2;font-size:19px;line-height:1;cursor:pointer;border-radius:8px;width:30px;height:30px;transition:color .12s,background .12s}
+.del:hover{color:var(--neg);background:#F7ECEA}
+
+/* column headers for felles */
+.colhead{display:grid;grid-template-columns:1fr 124px 124px 30px;gap:10px;padding:0 0 8px;border-bottom:1.5px solid var(--line);margin-bottom:4px}
+.colhead .h{font-size:12.5px;color:var(--muted);font-weight:600}
+.colhead .h.r{text-align:right;padding-right:4px}
+.househead{border:0;background:transparent;font:inherit;font-weight:600;font-size:13px;color:var(--accent);
+  text-align:right;width:100%;border-bottom:1.5px dashed transparent;padding-bottom:2px}
+.househead:hover{border-bottom-color:#bcd0c6}
+.househead:focus{outline:0;border-bottom-color:var(--accent)}
+
+.addbtn{margin-top:12px;border:1px dashed #cfd6cf;background:transparent;color:var(--accent);border-radius:10px;
+  padding:9px 12px;font:inherit;font-size:13.5px;font-weight:500;cursor:pointer;width:100%;transition:background .12s,border-color .12s}
+.addbtn:hover{background:var(--soft);border-color:var(--accent)}
+
+.subtotal{display:flex;justify-content:space-between;align-items:baseline;margin-top:14px;padding-top:13px;border-top:1.5px solid var(--line)}
+.subtotal .l{font-size:13px;color:var(--muted);font-weight:500}
+.subtotal .v{font-size:17px;font-weight:600;font-variant-numeric:tabular-nums}
+.subtotal.fel{display:grid;grid-template-columns:1fr 124px 124px 30px;gap:10px;align-items:baseline}
+.subtotal.fel .v{text-align:right;padding-right:4px}
+
+/* config */
+.people{display:flex;align-items:center;gap:8px;color:var(--muted);font-size:13.5px;margin:-6px 0 22px;flex-wrap:wrap}
+.people input{border:0;border-bottom:1.5px dashed #cfd6d0;background:transparent;font:inherit;font-weight:600;
+  color:var(--ink);padding:1px 2px;width:140px}
+.people input:focus{outline:0;border-bottom-color:var(--accent)}
+
+.summary-bottom{margin-top:6px;margin-bottom:0}
+.foot{color:var(--muted);font-size:12.5px;text-align:center;margin-top:40px;line-height:1.7}
+
+@media (max-width:760px){
+  h1{font-size:32px}
+  .summary{grid-template-columns:1fr}
+  .sb{border-right:0;border-bottom:1px solid var(--line);padding:14px 6px}
+  .sb:last-child{border-bottom:0}
+  .grid2{grid-template-columns:1fr}
+  .row.fel,.colhead,.subtotal.fel{grid-template-columns:1fr 96px 96px 26px;gap:7px}
+  .row.inc{grid-template-columns:1fr 110px 26px}
+}
+
+@media print{
+  body{background:#fff;background-image:none}
+  .head-actions,.addbtn,.del{display:none!important}
+  .card,.summary{box-shadow:none;border-color:#ddd;break-inside:avoid}
+  .wrap{padding:0}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="head">
+    <div>
+      <p class="eyebrow">Privat budsjett</p>
+      <h1>Boligbudsjett</h1>
+      <p class="sub">Sammenlign hva dere sitter igjen med hver måned i huset dere bor i nå mot huset dere vurderer å kjøpe.</p>
+    </div>
+    <div class="head-actions">
+      <button class="btn primary" id="share">Del budsjett</button>
+      <button class="btn" id="print">Skriv ut / PDF</button>
+      <button class="btn" id="reset">Nullstill</button>
+    </div>
+  </header>
+
+  <div class="people">
+    Husstanden består av
+    <input id="navnA" aria-label="Navn 1">
+    og
+    <input id="navnB" aria-label="Navn 2">
+  </div>
+
+  <!-- INNTEKTER -->
+  <section class="card">
+    <h2>Inntekter</h2>
+    <p class="desc">Lønn, barnetrygd og annet — samme for begge husene. Legg inn netto (etter skatt) per måned.</p>
+    <div class="rows" id="inntekter-list"></div>
+    <button class="addbtn" data-add="inntekter">+ Legg til inntekt</button>
+    <div class="subtotal"><span class="l">Sum inntekter</span><span class="v" id="sum-inntekt">0 kr</span></div>
+  </section>
+
+  <!-- FELLES UTGIFTER -->
+  <section class="card">
+    <h2>Felles utgifter</h2>
+    <p class="desc">Utgifter dere deler. Legg inn hva posten koster i hvert hus — dette er kjernen i sammenligningen.</p>
+    <div class="colhead">
+      <div class="h">Post</div>
+      <input class="househead" id="hus-naa" aria-label="Navn på nåværende hus">
+      <input class="househead" id="hus-ny" aria-label="Navn på nytt hus">
+      <div></div>
+    </div>
+    <div class="rows" id="felles-list"></div>
+    <button class="addbtn" data-add="felles">+ Legg til felles utgift</button>
+    <div class="subtotal fel">
+      <span class="l">Sum felles utgifter</span>
+      <span class="v" id="sum-felles-naa">0 kr</span>
+      <span class="v" id="sum-felles-ny">0 kr</span>
+      <span></span>
+    </div>
+  </section>
+
+  <!-- EGNE UTGIFTER -->
+  <div class="grid2">
+    <section class="card">
+      <h2>Egne utgifter — <input class="titleinput" id="navnA2" aria-label="Navn 1"></h2>
+      <p class="desc">Personlige utgifter (mobil, trening, abonnementer …).</p>
+      <div class="rows" id="egneA-list"></div>
+      <button class="addbtn" data-add="egneA">+ Legg til utgift</button>
+      <div class="subtotal"><span class="l">Sum egne utgifter</span><span class="v" id="sum-egneA">0 kr</span></div>
+    </section>
+    <section class="card">
+      <h2>Egne utgifter — <input class="titleinput" id="navnB2" aria-label="Navn 2"></h2>
+      <p class="desc">Personlige utgifter (mobil, trening, abonnementer …).</p>
+      <div class="rows" id="egneB-list"></div>
+      <button class="addbtn" data-add="egneB">+ Legg til utgift</button>
+      <div class="subtotal"><span class="l">Sum egne utgifter</span><span class="v" id="sum-egneB">0 kr</span></div>
+    </section>
+  </div>
+
+  <!-- SAMMENDRAG (nederst) -->
+  <p class="eyebrow" style="margin:46px 0 12px">Oppsummering</p>
+  <section class="summary summary-bottom" aria-label="Sammendrag">
+    <div class="sb">
+      <p class="lab" data-s="lab-naa">Huset vi bor i nå</p>
+      <div class="num" data-s="netto-naa">0 kr</div>
+      <div class="meta">kostnader per måned</div>
+    </div>
+    <div class="sb">
+      <p class="lab" data-s="lab-ny">Huset vi vurderer</p>
+      <div class="num" data-s="netto-ny">0 kr</div>
+      <div class="meta">kostnader per måned</div>
+    </div>
+    <div class="sb">
+      <span class="chip" data-s="diff-chip">Differanse</span>
+      <div class="num" data-s="diff">0 kr</div>
+      <div class="verdict" data-s="verdict">Fyll inn tallene over for å se sammenligningen.</div>
+    </div>
+  </section>
+
+  <p class="foot">
+    Alt lagres automatisk i denne nettleseren på din maskin — ingenting sendes noe sted.<br>
+    Tips: bruk «Skriv ut / PDF» for å ta vare på en sammenligning.
+  </p>
+</div>
+
+<script>
+"use strict";
+const LS_KEY = 'boligbudsjett.v1';
+let _id = 0;
+const uid = () => 'r' + (++_id) + '-' + (Date.now ? Date.now() : 0);
+const row  = navn => ({id: uid(), navn, belop: ''});
+const frow = navn => ({id: uid(), navn, naa: '', ny: ''});
+const num  = v => { const n = parseFloat(String(v).replace(',', '.')); return isFinite(n) ? n : 0; };
+const fmt  = n => Math.round(n).toLocaleString('nb-NO') + ' kr';
+const pct  = n => n.toLocaleString('nb-NO', {minimumFractionDigits:2, maximumFractionDigits:2}) + ' %';
+
+function defaults(){
+  return {
+    navnA:'Tor Andre', navnB:'Samboer',
+    husNaa:'Huset vi bor i nå', husNy:'Huset vi vurderer',
+    inntekter:[ row('Lønn Tor Andre'), row('Lønn samboer'), row('Barnetrygd') ],
+    felles:[ frow('Boliglån / husleie'), frow('Strøm'), frow('Kommunale avgifter'),
+             frow('Felleskostnader'), frow('Forsikring'), frow('Internett / TV'),
+             frow('Mat og dagligvarer'), frow('Transport / bil') ],
+    egneA:[ row('Mobil'), row('Trening'), row('Abonnementer') ],
+    egneB:[ row('Mobil'), row('Trening'), row('Abonnementer') ]
+  };
+}
+
+let state;
+try { state = JSON.parse(localStorage.getItem(LS_KEY)) || defaults(); }
+catch(e){ state = defaults(); }
+const d = defaults();
+for (const k in d) if (state[k] === undefined) state[k] = d[k];
+
+const save = () => { try { localStorage.setItem(LS_KEY, JSON.stringify(state)); } catch(e){} };
+const $ = id => document.getElementById(id);
+
+/* ====================== BUDSJETT ====================== */
+function buildList(listKey, containerId, kind){
+  const c = $(containerId);
+  c.innerHTML = '';
+  state[listKey].forEach(item => {
+    const r = document.createElement('div');
+    if (kind === 'felles'){
+      r.className = 'row fel';
+      r.innerHTML =
+        '<input class="navn" placeholder="Navn på post" value="'+esc(item.navn)+'" data-id="'+item.id+'" data-f="navn">' +
+        amt(item.id,'naa',item.naa) + amt(item.id,'ny',item.ny) +
+        '<button class="del" data-id="'+item.id+'" aria-label="Fjern">×</button>';
+    } else {
+      r.className = 'row inc';
+      r.innerHTML =
+        '<input class="navn" placeholder="Navn på post" value="'+esc(item.navn)+'" data-id="'+item.id+'" data-f="navn">' +
+        amt(item.id,'belop',item.belop) +
+        '<button class="del" data-id="'+item.id+'" aria-label="Fjern">×</button>';
+    }
+    c.appendChild(r);
+  });
+}
+function amt(id, field, val){
+  return '<span class="amt"><input class="belop" type="number" inputmode="numeric" step="50" min="0" ' +
+         'placeholder="0" value="'+(val===''||val==null?'':val)+'" data-id="'+id+'" data-f="'+field+'"><span class="kr">kr</span></span>';
+}
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/"/g,'&quot;'); }
+
+function wire(listKey, containerId, kind){
+  const c = $(containerId);
+  c.addEventListener('input', e => {
+    const t = e.target; const id = t.getAttribute('data-id'); if(!id) return;
+    const f = t.getAttribute('data-f');
+    const item = state[listKey].find(x => x.id === id); if(!item) return;
+    item[f] = t.value;
+    recompute(); save();
+  });
+  c.addEventListener('click', e => {
+    const b = e.target.closest('.del'); if(!b) return;
+    const id = b.getAttribute('data-id');
+    state[listKey] = state[listKey].filter(x => x.id !== id);
+    buildList(listKey, containerId, kind); recompute(); save();
+  });
+}
+
+document.querySelectorAll('[data-add]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const key = btn.getAttribute('data-add');
+    const kind = key === 'felles' ? 'felles' : 'inc';
+    state[key].push(key === 'felles' ? frow('') : row(''));
+    buildList(key, key + '-list', kind);
+    recompute(); save();
+    const inputs = $(key + '-list').querySelectorAll('.navn');
+    if (inputs.length) inputs[inputs.length - 1].focus();
+  });
+});
+
+function bindText(id, key, extraIds){
+  const ids = [id].concat(extraIds || []);
+  ids.forEach(i => {
+    const el = $(i); el.value = state[key];
+    el.addEventListener('input', () => {
+      state[key] = el.value; recompute(); save();
+      ids.forEach(j => { if (j !== i) $(j).value = state[key]; });
+    });
+  });
+}
+bindText('navnA','navnA',['navnA2']);
+bindText('navnB','navnB',['navnB2']);
+bindText('hus-naa','husNaa');
+bindText('hus-ny','husNy');
+
+function sum(list, field){ return list.reduce((a,x) => a + num(x[field]), 0); }
+const setAll = (key, text) => document.querySelectorAll('[data-s="'+key+'"]').forEach(el => el.textContent = text);
+const setAllHTML = (key, html) => document.querySelectorAll('[data-s="'+key+'"]').forEach(el => el.innerHTML = html);
+function setNumAll(key, val){
+  document.querySelectorAll('[data-s="'+key+'"]').forEach(el => {
+    el.textContent = fmt(val);
+    el.classList.toggle('pos', val > 0); el.classList.toggle('neg', val < 0);
+  });
+}
+function setCost(key, val){
+  document.querySelectorAll('[data-s="'+key+'"]').forEach(el => {
+    el.textContent = fmt(val);
+    el.classList.add('pos'); el.classList.remove('neg');
+  });
+}
+function ovr(n){ return n < 0 ? ' <span style="color:var(--neg)">(underskudd)</span>' : ' til overs'; }
+
+/* fargelegg dyrere (rød) / billigere (grønn) per felles-rad */
+function colorFelles(){
+  const c = $('felles-list');
+  state.felles.forEach(item => {
+    const a = c.querySelector('.belop[data-id="'+item.id+'"][data-f="naa"]');
+    const b = c.querySelector('.belop[data-id="'+item.id+'"][data-f="ny"]');
+    if (!a || !b) return;
+    const na = num(item.naa), ny = num(item.ny);
+    a.classList.remove('more','less'); b.classList.remove('more','less');
+    if (na > ny){ a.classList.add('more'); b.classList.add('less'); }
+    else if (na < ny){ a.classList.add('less'); b.classList.add('more'); }
+  });
+}
+
+function recompute(){
+  const inntekt   = sum(state.inntekter, 'belop');
+  const egne      = sum(state.egneA, 'belop') + sum(state.egneB, 'belop');
+  const fellesNaa = sum(state.felles, 'naa');
+  const fellesNy  = sum(state.felles, 'ny');
+
+  const nettoNy  = inntekt - egne - fellesNy;
+  const diff     = fellesNy - fellesNaa;
+  const kostNaa  = egne + fellesNaa;
+  const kostNy   = egne + fellesNy;
+
+  $('sum-inntekt').textContent    = fmt(inntekt);
+  $('sum-egneA').textContent      = fmt(sum(state.egneA,'belop'));
+  $('sum-egneB').textContent      = fmt(sum(state.egneB,'belop'));
+  $('sum-felles-naa').textContent = fmt(fellesNaa);
+  $('sum-felles-ny').textContent  = fmt(fellesNy);
+
+  setCost('netto-naa', kostNaa);
+  setCost('netto-ny',  kostNy);
+
+  setAll('lab-naa', state.husNaa || 'Huset vi bor i nå');
+  setAll('lab-ny',  state.husNy  || 'Huset vi vurderer');
+
+  const diffText = (diff > 0 ? '+' : diff < 0 ? '−' : '') + fmt(Math.abs(diff));
+  document.querySelectorAll('[data-s="diff"]').forEach(el => {
+    el.textContent = diffText;
+    el.classList.toggle('neg', diff > 0);
+    el.classList.toggle('pos', diff < 0);
+  });
+
+  let chipText, chipClass, verdictHTML;
+  if (diff > 0){
+    chipText = 'Dyrere per måned'; chipClass = 'chip bad';
+    verdictHTML = 'Det nye huset koster <b>'+fmt(diff)+'</b> mer i måneden. ' +
+      'Da sitter dere igjen med <b>'+fmt(nettoNy)+'</b>'+ ovr(nettoNy) +'.';
+  } else if (diff < 0){
+    chipText = 'Billigere per måned'; chipClass = 'chip';
+    verdictHTML = 'Det nye huset koster <b>'+fmt(Math.abs(diff))+'</b> mindre i måneden. ' +
+      'Da sitter dere igjen med <b>'+fmt(nettoNy)+'</b>'+ ovr(nettoNy) +'.';
+  } else {
+    chipText = 'Differanse'; chipClass = 'chip';
+    verdictHTML = 'Husene koster det samme per måned så langt. ' +
+      'Dere sitter igjen med <b>'+fmt(nettoNy)+'</b>'+ ovr(nettoNy) +'.';
+  }
+  document.querySelectorAll('[data-s="diff-chip"]').forEach(el => { el.textContent = chipText; el.className = chipClass; });
+  setAllHTML('verdict', verdictHTML);
+
+  colorFelles();
+}
+
+/* ====================== INIT ====================== */
+$('print').addEventListener('click', () => window.print());
+$('reset').addEventListener('click', () => {
+  if (confirm('Nullstille alle tall og starte på nytt?')){ state = defaults(); save(); renderAll(); }
+});
+
+function initBudsjett(){
+  buildList('inntekter','inntekter-list','inc');
+  buildList('felles','felles-list','felles');
+  buildList('egneA','egneA-list','inc');
+  buildList('egneB','egneB-list','inc');
+  $('navnA').value = state.navnA; $('navnA2').value = state.navnA;
+  $('navnB').value = state.navnB; $('navnB2').value = state.navnB;
+  $('hus-naa').value = state.husNaa; $('hus-ny').value = state.husNy;
+  recompute();
+}
+function renderAll(){ initBudsjett(); }
+
+wire('inntekter','inntekter-list','inc');
+wire('felles','felles-list','felles');
+wire('egneA','egneA-list','inc');
+wire('egneB','egneB-list','inc');
+
+/* ====================== DELING VIA LENKE (øyeblikksbilde) ====================== */
+const SHARE_BASE = ''; // settes til publisert GitHub Pages-URL etter publisering
+
+function toShare(st){
+  return {
+    v:1, na:st.navnA, nb:st.navnB, hn:st.husNaa, hy:st.husNy,
+    i:  st.inntekter.map(x => [x.navn, x.belop]),
+    f:  st.felles.map(x => [x.navn, x.naa, x.ny]),
+    ea: st.egneA.map(x => [x.navn, x.belop]),
+    eb: st.egneB.map(x => [x.navn, x.belop])
+  };
+}
+function fromShare(s){
+  const L = a => Array.isArray(a) ? a : [];
+  const v = x => (x === undefined || x === null) ? '' : x;
+  return {
+    navnA: s.na || 'Tor Andre', navnB: s.nb || 'Samboer',
+    husNaa: s.hn || 'Huset vi bor i nå', husNy: s.hy || 'Huset vi vurderer',
+    inntekter: L(s.i).map(a  => ({id:uid(), navn:a[0]||'', belop:v(a[1])})),
+    felles:    L(s.f).map(a  => ({id:uid(), navn:a[0]||'', naa:v(a[1]), ny:v(a[2])})),
+    egneA:     L(s.ea).map(a => ({id:uid(), navn:a[0]||'', belop:v(a[1])})),
+    egneB:     L(s.eb).map(a => ({id:uid(), navn:a[0]||'', belop:v(a[1])}))
+  };
+}
+function enc(obj){
+  return btoa(unescape(encodeURIComponent(JSON.stringify(obj))))
+    .replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
+}
+function dec(s){
+  s = s.replace(/-/g,'+').replace(/_/g,'/');
+  return JSON.parse(decodeURIComponent(escape(atob(s))));
+}
+function shareUrl(){
+  const base = SHARE_BASE || (location.origin + location.pathname);
+  return base + '#d=' + enc(toShare(state));
+}
+
+$('share').addEventListener('click', async () => {
+  const url = shareUrl();
+  if (url.indexOf('file:') === 0){
+    window.prompt('Siden er ikke publisert ennå, så denne lenken virker bare på din maskin:', url);
+    return;
+  }
+  let ok = false;
+  try { await navigator.clipboard.writeText(url); ok = true; } catch(e){}
+  if (!ok){
+    try {
+      const t = document.createElement('textarea');
+      t.value = url; t.style.position = 'fixed'; t.style.opacity = '0';
+      document.body.appendChild(t); t.select(); ok = document.execCommand('copy');
+      document.body.removeChild(t);
+    } catch(e){}
+  }
+  const b = $('share'), prev = b.textContent;
+  if (ok){ b.textContent = '✓ Lenke kopiert — send til samboer'; }
+  else { window.prompt('Kopier lenken og send den:', url); }
+  setTimeout(() => { b.textContent = prev; }, 2600);
+});
+
+/* åpne et delt budsjett fra en lenke */
+function loadFromHash(){
+  const m = (location.hash || '').match(/d=([^&]+)/);
+  if (!m) return;
+  try {
+    const incoming = fromShare(dec(m[1]));
+    const hasLocal = !!localStorage.getItem(LS_KEY);
+    if (!hasLocal || confirm('Åpne det delte budsjettet fra lenken? Det erstatter tallene som ligger i denne nettleseren.')){
+      state = incoming; save();
+    }
+  } catch(e){}
+  try { history.replaceState(null, '', location.pathname + location.search); } catch(e){}
+}
+loadFromHash();
+
+renderAll();
+</script>
+</body>
+</html>
