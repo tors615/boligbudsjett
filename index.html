@@ -115,6 +115,17 @@ h1{font-family:'Fraunces',Georgia,serif;font-weight:600;font-size:40px;line-heig
 .summary-bottom{margin-top:6px;margin-bottom:0}
 .foot{color:var(--muted);font-size:12.5px;text-align:center;margin-top:40px;line-height:1.7}
 
+.modal{position:fixed;inset:0;background:rgba(18,28,23,.46);display:flex;align-items:center;justify-content:center;z-index:50;padding:20px}
+.modal-card{background:var(--card);border-radius:var(--r);box-shadow:var(--sh);max-width:540px;width:100%;padding:28px}
+.modal-card h3{font-family:'Fraunces',Georgia,serif;font-weight:600;font-size:23px;margin:0 0 8px;letter-spacing:-.01em}
+.modal-desc{color:var(--muted);font-size:13.5px;margin:0 0 18px;line-height:1.55}
+.modal-desc b{color:var(--ink)}
+.modal-link{display:flex;gap:8px;margin-bottom:18px}
+.modal-link input{flex:1;min-width:0;border:1px solid var(--line);border-radius:10px;padding:11px 12px;font:inherit;font-size:13px;background:#FCFCFA;color:var(--ink)}
+.modal-link input:focus{outline:0;border-color:var(--accent)}
+#copy-link{white-space:nowrap}
+.modal-close{border:0;background:transparent;color:var(--muted);font:inherit;font-size:13.5px;cursor:pointer;text-decoration:underline}
+
 @media (max-width:760px){
   h1{font-size:32px}
   .summary{grid-template-columns:1fr}
@@ -227,6 +238,18 @@ h1{font-family:'Fraunces',Georgia,serif;font-weight:600;font-size:40px;line-heig
     Alt lagres automatisk i denne nettleseren på din maskin — ingenting sendes noe sted.<br>
     Tips: bruk «Skriv ut / PDF» for å ta vare på en sammenligning.
   </p>
+</div>
+
+<div id="share-modal" class="modal" style="display:none" aria-label="Del budsjett">
+  <div class="modal-card">
+    <h3>Send denne lenken til samboeren din</h3>
+    <p class="modal-desc">Lenken under inneholder alle tallene. <b>Ikke kopier adressen øverst i nettleseren</b> — den er tom. Bruk denne:</p>
+    <div class="modal-link">
+      <input id="share-link" readonly>
+      <button class="btn primary" id="copy-link">Kopier</button>
+    </div>
+    <button class="modal-close" id="close-modal">Lukk</button>
+  </div>
 </div>
 
 <script>
@@ -481,7 +504,19 @@ function hasAmounts(st){
       || any(st.felles,'naa') || any(st.felles,'ny');
 }
 
-$('share').addEventListener('click', async () => {
+function copyLink(){
+  const inp = $('share-link'); const url = inp.value;
+  const done = ok => { const b = $('copy-link'), p = b.textContent; b.textContent = ok ? '✓ Kopiert' : 'Trykk Ctrl+C'; setTimeout(() => { b.textContent = p; }, 1800); };
+  inp.focus(); inp.select();
+  if (navigator.clipboard){
+    navigator.clipboard.writeText(url).then(() => done(true)).catch(() => {
+      try { done(document.execCommand('copy')); } catch(e){ done(false); }
+    });
+  } else {
+    try { done(document.execCommand('copy')); } catch(e){ done(false); }
+  }
+}
+$('share').addEventListener('click', () => {
   if (!hasAmounts(state)){
     alert('Dette budsjettet er tomt, så lenken ville ikke hatt noen tall.\n\nÅpne fila eller siden der du faktisk har lagt inn tallene dine, og trykk «Del budsjett» der.');
     return;
@@ -491,21 +526,13 @@ $('share').addEventListener('click', async () => {
     window.prompt('Siden er ikke publisert ennå, så denne lenken virker bare på din maskin:', url);
     return;
   }
-  let ok = false;
-  try { await navigator.clipboard.writeText(url); ok = true; } catch(e){}
-  if (!ok){
-    try {
-      const t = document.createElement('textarea');
-      t.value = url; t.style.position = 'fixed'; t.style.opacity = '0';
-      document.body.appendChild(t); t.select(); ok = document.execCommand('copy');
-      document.body.removeChild(t);
-    } catch(e){}
-  }
-  const b = $('share'), prev = b.textContent;
-  if (ok){ b.textContent = '✓ Lenke kopiert — send til samboer'; }
-  else { window.prompt('Kopier lenken og send den:', url); }
-  setTimeout(() => { b.textContent = prev; }, 2600);
+  $('share-link').value = url;
+  $('share-modal').style.display = 'flex';
+  copyLink();
 });
+$('copy-link').addEventListener('click', copyLink);
+$('close-modal').addEventListener('click', () => { $('share-modal').style.display = 'none'; });
+$('share-modal').addEventListener('click', e => { if (e.target.id === 'share-modal') $('share-modal').style.display = 'none'; });
 
 /* åpne et delt budsjett fra en lenke */
 function loadFromHash(){
